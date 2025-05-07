@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>H5 API</title>
+  <style>
+    .box {
+      width: 500px;
+      height: 500px;
+      background: pink;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <video width="500" src="../video/trailer.mp4"></video>
+  </div>
+
+  <button class="btn1">全屏</button>
+  <button class="btn2">取消全屏</button>
+  <script>
+    document.querySelector('.btn1').onclick = function () {
+      /* 全屏操作 */
+      // 每一个元素都有全屏方法,但是H5的API存在兼容问题,在IE9以下不支持,高级浏览器新版本支持,但是需要加上私有前缀
+      // webKit,moz,ms,o:chrome,firefox,edge,opera
+      //document.querySelector('video').webkitRequestFullScreen();
+      // 页面文档全屏
+      //document.querySelector('body').webkitRequestFullScreen();
+      document.documentElement.webkitRequestFullScreen();
+      //document.querySelector('.box').webkitRequestFullScreen();
+    }
+    document.querySelector('.btn2').onclick = function () {
+      // 错误的取消全屏
+      // document.documentElement.webkitCancelFullScreen();
+      // 取消全屏,和元素没有关系
+      document.webkitCancelFullScreen();
+    }
+  </script>
+</body>
+
+</html>

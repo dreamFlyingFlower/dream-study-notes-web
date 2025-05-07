@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- 设置手机视口宽度以及初始缩放值,主要是为了自适应 -->
+	<!-- maximum-scale:设置最大缩放比例;minimum-scale:设置最小缩放比例;user-scalable:设置是否允许用户缩放,yes/no -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<!-- 外部样式文件,href可以是本地文件路径,也可以是网络上的路径 -->
+	<link rel="stylesheet" href="font.css">
+	<!-- 样式权重,分为4围:元素标签为0,0,0,1;类为0,0,1,0;id为0,1,0,0;行内样式为1,0,0,0;!important为无穷大 -->
+	<!-- 当某个样式被多种不同样式修饰时,相同权重的,按书写顺序,使用最下面的样式;权重不同,根据权重最大的显示 -->
+	<!-- 当某个样式有多重限定,如div p .color,此时权重会叠加为0,0,1,2,比单纯的类样式权重更高 -->
+	<!-- 样式会继承,但是若子样式已经设置了同样式,则以子元素样式显示,不管父元素样式权重多高,到子元素都为0 -->
+	<!-- padding会撑开带有weith和height的盒子,要想保证盒子的width和height不变,需要提前计算好.若不设置宽高,则不影响 -->
+	<!-- 行内元素只有左右外边距,没有上下外边距 -->
+
+	<!-- BFC:块级格式化上下文,相当于隔离内外区域的样式规则,只有指定属性的样式才会触发BFC -->
+	<!-- float属性不为none;position为absolute或fixed;display为inline-block,table-cell,table-caption,flex,inline-flex;overflow为不visible -->
+	<style>
+		body{
+			/* 透视效果.在3D样式上效果明显,值越小越明显,如transform: rotateX(360deg) */
+			perspective: 1000px;
+			/* 当元素不面向屏幕时是否可见,hidden不可见.常用于3D旋转 */
+			backface-visibility: hidden;
+		}
+		.red {
+			color: red
+		}
+
+		.font-a {
+			/* 注意是rgba,最后一个参数是透明度,0和1之间 */
+			color: rgba(0, 0, 0, 0.7);
+			/* 多字体从前往后,前面没有的就用后面的,逗号隔开,中文,特殊字符加引号 */
+			font-family: 'Courier New', Courier, monospace;
+			/* 字体样式,斜体或正常 */
+			font-style: normal;
+			/* 字体粗细 */
+			font-weight: 700;
+			/* 字体大小 */
+			font-size: 16px;
+			/* 字体集合,顺序固定,size和family不能省:font-style font-weight font-size/line-height font-family */
+			font: normal normal 16px 'Courier New', Courier, monospace;
+			/* 元素内的字体水平居中对齐 */
+			text-align: center;
+			/* 首行缩进,1em相当于一个汉字的宽度 */
+			text-indent: 2em;
+			/* 字体下划线,line-through:删除线,效果等同于s标签 */
+			text-decoration: underline;
+			/* 行高,行间距 */
+			line-height: 16px;
+			/* 字间距 */
+			letter-spacing: 2px;
+			/* 单词间距,只针对英文,中文无效 */
+			word-spacing: 2px;
+			/* 阴影:水平阴影 垂直阴影 模糊度,越大越模糊 颜色 */
+			text-shadow: 10px 10px 5px rgba(0, 0, 0, 0.7);
+			/* 控制图片,表单和文字对齐,对块元素无效 */
+			vertical-align: middle;
+			/* 自动换行,主要处理英文.normal:使用浏览器默认规则;break-all:允许在单词内换行;keep-all:只能在半角空格或连字符处换行 */
+			word-break: normal;
+			/* 设置或检索对象内文本显示方式.normal:默认处理方式;nowrap:强制在同一行内显示所有文本,直到文本结束或遇到br标签才结束 */
+			white-space: normal;
+			/* 文字溢出,设置是否使用...表示溢出的文字.clip:不显示...,而是直接裁剪;ellipse:当对象内文本溢出时显示... */
+			/* 一定要强制一行内显示才有效,还要搭配overflow使用,超出隐藏 */
+			text-overflow: ellipse;
+		}
+
+		/* 利用阴影实现文件的凸起效果 */
+		.font-text-shadow-tu {
+			text-shadow: 1px 1px 1px #000, -1px -1px 1px #fff;
+		}
+
+		/* 利用阴影实现文字的凹下效果 */
+		.font-text-shadow-ao {
+			text-shadow: -1px -1px 1px #000, 1px 1px 1px #fff;
+		}
+
+		/* ul下的所有li下的所有a,不管层级 */
+		ul li a {
+			color: blue;
+		}
+
+		/* ul下的所有li,li的直接下级a,其他更下级的a不受影响 */
+		ul li>a {
+			color: red;
+		}
+
+		/* 属性选择器,只要带有某个属性即可 */
+		a[title] {
+			color: springgreen;
+		}
+
+		/* 属性等于某个值,可以用通配符.^=:以指定值开头;$=:以指定值结尾;*=:包含指定值即可 */
+		input[type='text'] {
+			color: salmon;
+		}
+
+		input[type^='text'] {
+			color: teal;
+			/* 取消轮廓线 */
+			outline: none;
+		}
+
+		textarea {
+			/* 进制文本域拖拽 */
+			resize: none;
+		}
+
+		/* 中间没有空格,即是div,class又是red的才生效.不建议使用 */
+		div.red {
+			background-color: red;
+		}
+
+		/* div下class是red的才生效 */
+		div .red {
+			background-color: skyblue;
+			/* 背景图片滚动行为:fixed->窗口滚动,但是背景不动;scroll:窗口滚动,超过背景高度背景就消息 */
+			background-attachment: fixed;
+			/* 背景聚合,顺序建议如下,暂无严格要求:背景颜色 图片地址 repeat行为 滚动行为 背景位置.transparent:透明 */
+			/* 可添加多个背景图片,为避免相互覆盖,颜色写在最后一张图片上 */
+			background: transparent url() no-repeat fixed center center;
+			/* 图片尺寸,可以是具体数字和百分比.cover:等比缩放,图片宽高小的一方和盒子相同时停止缩放,超出隐藏 */
+			/* contain:类似于cover,不同的是,只要图片宽高有一个和盒子的宽高相同,停止缩放,仍然会有部分没有覆盖盒子 */
+			background-size: cover;
+			/* 背景颜色渐变,有很大的兼容性问题,需要加前缀 */
+			background: linear-gradient(top,red,blue);
+			background: -moz-linear-gradient(top,red,blue);
+			background: -webkit-linear-gradient(top,red,blue);
+		}
+
+		/* 多选择器 */
+		ul,
+		ol {
+			padding: 0;
+			margin: 0;
+		}
+
+		/* 伪类选择器.link:未访问的链接;visited:已访问的链接;hover:鼠标滑过链接;active:鼠标按下的链接.4种可以没有,但是顺序不能颠倒 */
+		a:hover {
+			color: yellow;
+		}
+
+		/* 鼠标滑过div时,img显示 */
+		div:hover img {
+			display: block;
+		}
+
+		/* 鼠标经过div时插入一个伪元素,添加一个边框 */
+		div:hover::before {
+			content: "";
+			display: block;
+			border: 1px solid red;
+			/* 图片边框.图片资源;切割的尺寸,默认单位px,且不能使用小数;图片平铺方式 */
+			border-image: url(image/ao.png) 100/20px round;
+			/* 以下3个元素合成之后就是border-image */
+			border-image-source: url(image/ao.png);
+			/* 切割的位置距离对应的边的距离,4个切割的尺寸,可以简写 */
+			border-image-slice: 100 100 100 100;
+			/* 边框的宽度 */
+			border-image-width: 10px;
+			/* 平铺的方式.round环绕,完整的自适应平铺在边框内;stretch拉伸;repeat平铺 */
+			border-image-repeat: round;
+		}
+
+		/* 伪类选择器,可以用到所有元素上.first-child,last-child:第一个直接下级,最后一个直接下级 */
+		li:first-child {
+			color: purple;
+		}
+
+		/* 第n个直接下级,注意下标直接从1开始,不是从0开始.2就是第2个 */
+		li:nth-child(2) {
+			color: silver;
+		}
+
+		/* 所有奇数或偶数:odd,even */
+		li:nth-child(odd) {
+			color: blue;
+		}
+
+		/* 选中所有3的倍数的直接下级,3可改,也可以是3n+1,3n-1类似 */
+		li:nth-child(3n) {
+			color: blue;
+		}
+
+		/* 选中第一个字 */
+		p::first-letter {
+			color: violet;
+		}
+
+		/* 选中第一行 */
+		p::first-line {
+			color: violet;
+		}
+
+		/* 鼠标选中时才生效 */
+		p::selection {
+			color: violet;
+		}
+
+		/* ::before,::after:类似的伪元素选择器,相当于在元素前或后放入一个行内元素 */
+		/* 在div盒子内部的开头和结尾插入内容,通常用在消除浮动.此时的content相当于一个div中的块元素,根据内容决定块大小 */
+		div::before,
+		div::after {
+			content: "";
+		}
+
+		table {
+			/* 相邻边框合并,只对表格有效 */
+			border-collapse: collapse;
+		}
+
+		div {
+			/* 盒模型:content-box模式,默认,盒子大小为width+padding+border,W3C标准模型 */
+			/* border-box模式,盒子大小为width,即padding和border包含在width里,此时padding不会撑大盒子 */
+			box-sizing: content-box;
+			/* 盒子影音:水平阴影,垂直阴影,模糊距离,阴影大小,阴影颜色,内/外阴影(inset/outset) */
+			box-shadow: 10px 10px 10px 10px black inset;
+			/* 浮动需要先添加父盒子,一边布局 */
+		}
+
+		div {
+			/* fixed:相对于浏览器窗口定位 */
+			/* static:默认定位,用于清除定位.left,top等无效 */
+			position: static;
+			/* relative:相对定位,相对于原文档流的位置定位,且原文档的位置继续占有,每次移动的位置都是以左上角为基点 */
+			position: relative;
+			/* absolute:绝对定位,相对于上一个已经定位的父元素定位.如果父元素没有定位,则相对于浏览器左上角为基点定位,且脱离文档流,不占位置 */
+			/* 绝对定位的盒子,margin仍然有效,只是左右auto无效 */
+			position: absolute;
+			/* 固定定位:相对于浏览器定位,脱离文档流,不占位置 */
+			position: fixed;
+			/* 层级:数字越大,层级越高,只有relative,absolute,fixed该属性才生效 */
+			z-index: 1;
+		}
+
+		#search {
+			position: relative;
+			top: 300px;
+			height: 30px;
+			width: 200px;
+			margin: 100px auto;
+			font-family: "iconfont";
+		}
+
+		#search::before {
+			position: absolute;
+			right: 10px;
+			top: 5px;
+		}
+	</style>
+</head>
+
+<body style="height: 100%;width: 100%;">
+	<!-- 多个样式存在时,不同样式叠加,相同样式后面的覆盖前面的 -->
+	<div class="red font-a" style="margin:0 auto;width: 200px;height: 200px;border: solid 1px blue;">ttt</div>
+	<div class="red" style="margin:0 auto;width: 200px;height: 200px;border: solid 1px blue;">
+		<div class="red" style="margin:0 auto;width: 100px;height: 100px;border: solid 1px blue;"></div>
+	</div>
+	<div class="font-a" style="margin:0 auto;width: 200px;height: 200px;border: solid 1px blue;">Dream</div>
+	<ul>
+		<li>11111</li>
+		<li>22222</li>
+		<li>33333</li>
+		<li>44444</li>
+		<li>55555</li>
+	</ul>
+	<!-- cellspacing和cellpadding设置表格的边框宽度和间隙,一般设置为0;border-collapse:设置边框 -->
+	<table cellspacing="0" cellpadding="0" border-collapse="collapse">
+		<tr>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+		</tr>
+	</table>
+	<div>
+		<div>
+			两个嵌套的块元素,如果父元素没有上内边距及边框,则父元素的上外边距会与子元素的上外边距发生合并,合并后的外边距为两者中的较大者;
+			即使父元素上外边距为0,也会发生合并.
+			意思就是他们2个的上边距会合在一起,而不管是父子的那个设置margin,都以大的为准,父子一起移动,而不是各自移动各自的.
+			要解决这个问题,可以在父元素加边框或父元素加padding,或父元素加overflow:hidden
+		</div>
+	</div>
+
+	<br>
+	<span style="position:fixed;top:300px;left:200px;display: inline-block;width: 200px;height: 200px;font-size: 300px;">
+		<i class="iconfont" style="font-size: 300px;color: red;">&#xe6ff;</i>
+	</span>
+
+	<div id="search">
+		<i class="iconfont" style="color: red;">&#xe6fe;</i>
+	</div>
+
+	<!-- 让div水平垂直居中.transform减少的50%是以div本身的宽高计算的,而不是以父元素的宽高计算 -->
+	<div style="width: 200px;height: 200px;background-color: pink;position: absolute;left: 50%;top: 50%;transform: translate(-50%,-50%);"></div>
+
+	<script>
+		// 获取像素(px)和设备独立像素(pt)的关系,不同设备上不同
+		alert(window.devicePixelRatio);
+		// 获取屏幕大小
+		window.screen.height;
+		window.screen.width;
+		// 获得html,浏览器大小
+		document.documentElement.clientHeight;
+		document.documentElement.clientWidth;
+	</script>
+</body>
+
+</html>

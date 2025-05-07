@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>GeoLocation</title>
+</head>
+
+<body>
+	<!-- 在PC浏览器使用geolocation会遇到网络阻塞问题 -->
+	<script>
+		if (navigator.geolocation) {
+			// getCurrentPosition 获取当前定位信息
+			navigator.geolocation.getCurrentPosition(function (position) {
+				// 获取定位信息成功
+				// position:定位信息对象
+				// position.coords:坐标对象,有经纬度,海拔等
+			}, function (PositionError) {
+				// 获取定位信息失败
+			})
+		}
+	</script>
+</body>
+
+</html>

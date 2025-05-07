@@ -1,0 +1,90 @@
+html, body, ul, ol, li {
+	padding: 0;
+	margin: 0;
+}
+
+
+/* 清除浮动:需要添加到一个空的div或其他标签上,该空标签不设置宽高,要和浮动元素在同一个块内 */
+.clearfix1 {
+	clear: both;
+}
+
+
+/* 在浮动元素的父元素上添加overflow清除浮动 */
+.clearfix2 {
+	overflow: hidden;
+}
+
+
+/* 在浮动元素的父元素上添加,原理和clearfix1类似 */
+.clearfix3:after {
+	content: ".";
+	display: block;
+	height: 0;
+	visibility: hidden;
+	clear: both;
+}
+
+
+/* 推荐使用清除浮动 */
+.clearfix:before,
+.clearfix:after {
+	content: "";
+	display: table;
+}
+
+.clearfix:after {
+	clear: both;
+}
+
+.clearfix {
+	/* 兼容IE6,7 */
+	*zoom: 1;
+}
+
+/* img元素默认底部会有很小的空隙,让他成为块元素或使用vertical-align:top等,可消除这种影响 */
+img {
+	display: block;
+}
+
+/* 文字超出隐藏,超出部分显示... */
+.font-ellipsis {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* 盒子垂直居中的方法一,使用table-cell */
+.p-box {
+	width: 300px;
+	height: 300px;
+	border: 1px solid red;
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.c-box {
+	width: 200px;
+	height: 200px;
+	border: 1px solid black;
+}
+
+/* 盒子垂直居中的方法二,使用transform */
+.p-box1 {
+	width: 300px;
+	height: 300px;
+	border: 1px solid red;
+	display: table-cell;
+	vertical-align: middle;
+	position: relative;
+}
+
+.c-box2 {
+	width: 200px;
+	height: 200px;
+	background-color: pink;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body>
+    	<h3>表格.tr中只能放td,td里可以随便放</h3>
+        <p>border:设置表格的边框</p>
+        <p>cellspacing:设置单元格与单元格边框之间的空白距离</p>
+        <p>cellpadding:设置单元格内容与单元格边框之间的距离</p>
+        <p>align:设置表格在网页中的水平对齐方式</p>
+    	<table width="500" height="300" border="1" cellspacing="0" cellpadding="0" align="center">
+            <caption>表格标题</caption>
+            <!-- 表头,可以不要 -->
+            <thead>
+                <tr>
+                    <th>姓名</th>
+                    <th>性别</th>
+                    <th>年龄</th>
+                </tr>
+            </thead>
+            <!-- 主体,可以不要 -->
+    		<tbody>
+                <tr>
+                    <td>飞</td>
+                    <td>m</td>
+                    <td>22</td>
+                </tr>
+                <tr>
+                    <td>化</td>
+                    <td>f</td>
+                    <td>22</td>
+                </tr>
+                <!-- rowspan:跨行合并,先上后下,先左右后,值为合并的个数 -->
+                <tr>
+                    <td>化</td>
+                    <td>f</td>
+                    <td rowspan="2">22</td>
+                </tr>
+                <!-- colspan:跨列合并,先上后下,先左右后,值为合并的个数 -->
+                <tr>
+                    <td colspan="2">化</td>
+                </tr>
+            </tbody>
+    	</table>
+    </body>
+</html>
