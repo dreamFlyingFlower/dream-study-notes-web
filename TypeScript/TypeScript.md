@@ -35,7 +35,7 @@
 
 
 
-# 对象类型
+# 常用类型
 
 
 
@@ -67,6 +67,68 @@
 * 元组: tuple.编译后仍然是数组,但是可以限制数组的长度和类型
 
 * `never`: 永远不会有返回值,never类型的值可以赋值给其他任意类型,但是除了never之外,其他类型的值都不能赋值给never
+
+
+
+# 联合类型
+
+
+
+* 联合类型:Unions.用来表示变量、参数的类型不是单一原子类型,而可能是多种不同的类型的组合
+* 通过`|`操作符分隔类型的语法来表示联合类型.可以把`|`类比为 JavaScript 中的逻辑或 `||`,只不过前者表示可能的类型
+* `let name: string | number | boolean`: name可能是string,也可能是number,boolean类型
+* `function test(unit: 'px' | 'rem' | 'em' | '%' = 'px')`: unit参数可以是px,rem,em,%几个值中的一个,若不传,默认是px
+* 也可以使用type定义一个新的类型
+
+```typescript
+type Unit = 'px' | 'rem' | 'em' | '%';
+type ModernUnit = 'vh' | 'vw';
+function test(unit: Unit | ModernUnit){}
+```
+
+* 在对象中使用: 只能调用对象中都有的方法,单个对象独有的方法调用失败
+
+```typescript
+interface Bird {
+	fly(): void;
+	layEggs(): void;
+}
+interface Fish {
+	swim(): void;
+	layEggs(): void;
+}
+// 定义getPet变量为Bird或Fish类型,Fish给了默认值,并且强转为Bird | Fish 类型
+const getPet: ()=> Bird| Fish=()=>{
+	return {
+	// ....
+	} as Bird | Fish;
+};
+const Pet = getPet();
+// ok
+Pet.layEggs();
+// ts(2339) 'Fish'没有'fly'属性; 'Bird | Fish'没有'fly'属性
+Pet.fly();
+// 使用in操作符(类型守卫)来判断
+if('fly' in Pet){
+    // ok
+    Pet.fly();
+}
+// 使用type报错
+if(typeof Pet.fly === 'function'){
+    // 错误
+    Per.fly();
+}
+```
+
+
+
+# 交叉类型
+
+
+
+* 交叉类型:Intersection Type,它可以把多个类型合并成一个类型,合并后的类型将拥有所有成员类型的特性
+* 在TypeScript中,使用`&`操作符来声明交叉类型:`type Useless = string & number;`
+* 如果仅仅把原始类型、字面量类型、函数类型等原子类型合并成交叉类型,是没有任何用处的,因为任何类型都不能满足同时属于多种原子类型.因此,在上述的代码中,类型别名Useless的类型就是个never
 
 
 
@@ -179,6 +241,48 @@ obj.say("hi');// ts(2684) The 'this' context of type '{ say:(this: Window, nane:
 * 在class内部,普通方法的this默认指向当前对象.但是静态方法中的this需要显示指定
 
 
+
+# Type
+
+
+
+* 类型别名: `type 别名 = 类型定义`,接收抽离出来的内联类型
+
+```typescript
+// 定义一个类型接收新的对象定义
+type Alias = {
+	name: string;
+	age: ()=> number;
+}
+// 定义常规类型无法定义的变量
+type MixedType = string | number;
+// 交叉定义
+type InterType = {id:number,name:string} & {age:number,name:string}
+// 提取接口属性类型
+type NameType = Alias['name'];
+```
+
+
+
+# 接口
+
+
+
+```typescript
+// 在接口中定义类似Map的接口,并约束key和value的类型
+interface LikeMap{
+    // 约束key的类型为string
+    [key: string]: string;
+    // age必须是string,此处会报错
+    age: number;
+}
+
+let map: LikeMap={
+    'xxx': 'vvvv'
+}
+```
+
+* 大多数场景下,type可以替代接口,但是type重复定义会报错,而接口不会
 
 # 抽象类
 
