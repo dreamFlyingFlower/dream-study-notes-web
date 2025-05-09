@@ -66,7 +66,7 @@
 
 * 元组: tuple.编译后仍然是数组,但是可以限制数组的长度和类型
 
-* `never`: 永远不会有返回值,never类型的值可以赋值给其他任意类型,但是除了never之外,其他类型的值都不能赋值给never
+* `never`: 永远不会有返回值,never类型的值可以赋值给其他任意类型,但是除了never之外,其他类型的值都不能赋值给never.never是所有类型的子类型
 
 
 
@@ -128,7 +128,90 @@ if(typeof Pet.fly === 'function'){
 
 * 交叉类型:Intersection Type,它可以把多个类型合并成一个类型,合并后的类型将拥有所有成员类型的特性
 * 在TypeScript中,使用`&`操作符来声明交叉类型:`type Useless = string & number;`
-* 如果仅仅把原始类型、字面量类型、函数类型等原子类型合并成交叉类型,是没有任何用处的,因为任何类型都不能满足同时属于多种原子类型.因此,在上述的代码中,类型别名Useless的类型就是个never
+* 如果仅仅把原始类型、字面量类型、函数类型等原子类型合并成交叉类型,是没有用处的,因为任何类型都不能满足同时属于多种原子类型.因此,Useless的类型就是个never
+* 交叉类型主要用在接口的合并,可以获得类似接口继承的效果.但是同名的属性如果类型不兼容,合并后,属性类型可能变为never
+
+```typescript
+type IntersectionTypeConfict = { id: number; name: string; } & { age: number; name: number; };
+const mixedConflict: IntersectionTypeConfict = {
+    id:1,
+	name: 2,	// ts(2322)错误,'number'类型不能赋给'never'类型
+    age: 2
+};
+```
+
+* 给mivedConfict对象的name属性赋任意值都会提示类型错误,而如果不设置nane属性,又会提示一个缺少必选的 name属性的错误
+* 如果同名属性的类型兼容,比如一个是number,另一个是number的子类型、数字字面量类型,合并后 name属性的类型就是两者中的子类型
+
+```typescript
+type IntersectionTypeConfict = { id: number; name: 2; }& {age: number; name: number; };
+let mixedConflict: IntersectionTypeConfict = {
+    id: 1,
+	name: 2,	// ok,age: 2
+};
+mixedConflict = {
+    id: 1,
+	name: 22,	// '22'类型不能赋给'2′类型age: 2
+};
+```
+
+* 联合类型也可以使用交叉类型,但是交叉的结果是取他们的交集,即联合类型中都有的部分.如果没有任何交集,则结果是never
+
+
+
+# 类型缩减
+
+
+
+* 如果将 string 原始类型和`string字面量类型`组合成联合类型会是什么效果?效果就是类型缩减成 string 了
+
+```typescript
+type URStr = 'string' | string; //类型是string
+type URNum = 2 | number; //类型是number
+type URBoolen = true | boolean; //类型是boolean
+enum EnumUR{
+	ONE,
+	Two
+}
+type URE = EnumUR.ONE |EnumUR;//类型是EnumUR
+```
+
+* 类型缩减会降低IDE的提示功能,加上交叉即可
+
+```typescript
+type BorderColor = 'black' | 'red' | 'green' | 'yellow' | 'blue' | string & {};//字面类型都被保留
+```
+
+* 当联合类型的成员是接口类型,如果满足其中一个接口的属性是另外一个接口属性的子集,这个属性也会类型缩减
+
+```typescript
+// 这里因为 '1' 是 '1' | '2' 的子集，所以 age 的属性变成 '1' | '2'
+type UnionInterce =
+  | {age:  '1';}
+  | ({
+      age: '1' | '2';
+      [key:string]: string;
+  });
+```
+
+* never有个特性是所有类型的子类型,有时候可以做一些很奇怪的事
+
+```typescript
+// 以下代码中即定义了 number 类型的 age 属性,又定义了never类型的age 属性,等价于age 属性的类型是由 nunber 和o never类型组成的联合类型,所以可以把 number 类型的值赋子age 属性;但是不能把其他任何类型的值(比如说字符串字面量'string')赋予cge
+// 同时,在下面定义的接口类型中,还额外定义了string类型的字符串索引签名.因为never同时又是strinq类型的子类型,所以age属性的类型和字符串索引签名类型不冲突
+// 这样就可以把一个age 属性是2、string 属性是'string'的对象字面量赋值给 UnionInterce 类型的变量O
+// 因为正常情况下,age必须是string类型
+type UnionInterce =
+l {age: number;}
+l ({
+	age: never;
+	[key: string]: string;
+   });
+const O: UnionInterce = {
+    age: 2,
+    string: 'string'
+};
+```
 
 
 
@@ -379,7 +462,55 @@ const x1 = convert({ name: '' } as P1); // => number
 const ×2 = convert({ name: '' , age: 18 } as P2); // => string
 ```
 
+* 函数重载的好处是可以有提示,不用强转
+* 函数重载时若是有其他方法的参数个数不匹配,可将重载实现的参数给默认值或使用`?`将参数变成可传可不传的参数
+* `class`中的构造函数也可以重载
 
+
+
+# 枚举
+
+
+
+* 7 种常见的枚举类型: 数字类型、字符串类型、异构类型、常量成员和计算（值）成员、枚举成员类型和联合枚举、常量枚举、外部枚举
+* 在仅仅指定常量命名的情况下,实际定义的就是一个默认从 0 开始递增的数字集合,称之为数字枚举
+* 如果需要枚举值从其他值开始递增,则可以通过`常量命名 = 数值` 的格式显示指定枚举成员的初始值
+
+```typescript
+enum Day {
+    SUNDAY = 1,
+    MONDAY,
+    TUESDAY,
+    WEDNESDAY,
+    THURSDAY,
+    FRIDAY,
+    SATURDAY
+  }
+```
+
+* 可以给 SUNDAY 指定任意类型(比如整数、负数、小数等)、任意起始的数字,其后未显示指定值的成员会递增加 1
+* 如果给SATURDAY 赋值5,实际结果是所有的枚举值都是5,这可能是一个BUG,所以最好只给第一个成员赋值
+* 字符串枚举
+
+```typescript
+enum Day {
+    SUNDAY = 'SUNDAY',
+    MONDAY = 'MONDAY',
+   ...
+  }
+```
+
+* 异构枚举:值不是同种类型,没什么实际用到的场景
+
+```typescript
+enum Day {
+    SUNDAY = 'SUNDAY',
+    MONDAY = 2
+   ...
+  }
+```
+
+* 定义枚举时可以加上const,将枚举变为一个常量枚举,其中的成员都是不可变值
 
 
 
