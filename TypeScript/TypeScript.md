@@ -17,6 +17,49 @@
 
 
 
+# tsconfig
+
+
+
+```json
+{
+    "compilerOptions": {
+        "target": "es2020", // 指定 TS 编译成 JS 后的 JS版本
+        "module": "ESNext", // TS编译成JS后采用的模块规范commonjs amd cmd es等
+    	"moduleResolution": "Bundler",
+    	"types": ["node"],
+        "ib": ["DOM", "ES2020"], // 指定 TS编码期间可以使用的库文件版本,比如: ES5就不支持set集合
+        "outDir": "./dist", // 指定TS文件编译成JS后的输出目录
+        "rootDir": "./src", // 指定TS文件源码目录
+        "strict": true, // 启用严格检查模式
+        "strictNullChecks":false, // null和undefined即是值,也是类型,null 和undefined 值只能赋值给any,unknown和它们各自的类型
+        "noImplicitAny": true, // 一般是指表达式或函数参数上有隐含的any类型时报错,即这些类型必须显示的指定类型
+        "experimentalDecorators": true, // 启用ES7装饰器实验开启选项
+        "emitDecoratorMetadata": true, // 启用装饰器元数据开启选项
+        "declaration": true, // 指定TS文件编译后生成相应的.d.ts文件
+        "noImplicitReturns": true, // 不是函数的所有返回路径都有返回值时报错
+        "removeComments": true, // TS文件编译后删除所有的注释
+        "importHelpers": true,
+        "sourceMap": true, // 生成位置信息- - -map文件
+        "baseUrl": "src", // 工作根目录.解析非相对模块的基地址
+        "paths": {
+            "@/datatype/*": ["datatype/*"],
+            "@/131/*": ["131/*"],
+            "@/132/*": ["132/*"]
+        }
+    },
+    // 需要编译的ts文件,一个*表示文件匹配,**表示忽略文件的深度问题
+    "include": [
+        "vite.config.*",
+        "./src/**/*" // 匹配src下所有的ts文件
+    ],
+    // 不需要编译的文件
+    "exclude": []
+}
+```
+
+
+
 # !,?.,??
 
 
@@ -25,7 +68,7 @@
 
   ```typescript
   let mayNullOrUndefinedOrString: null | undefined| string;
-  mayNullOrUndefinedOrStringl.toString0; // ok
+  mayNullOrUndefinedOrString!.toString(); // ok
   mayNullOrUndefinedOrString.toString(); // ts(2531),错误
   ```
 
@@ -108,11 +151,13 @@ const Pet = getPet();
 Pet.layEggs();
 // ts(2339) 'Fish'没有'fly'属性; 'Bird | Fish'没有'fly'属性
 Pet.fly();
-// 使用in操作符(类型守卫)来判断
+// 使用in操作符(类型守卫)来判断,判断属性或方法,函数
 if('fly' in Pet){
     // ok
     Pet.fly();
 }
+// 判断对象实例还是不是某一个类
+if(Pet instanceof Bird){}
 // 使用type报错
 if(typeof Pet.fly === 'function'){
     // 错误
@@ -292,6 +337,72 @@ function fn():void{} // 正确
 
 
 
+# 泛型
+
+
+
+* 比any更具体的参数类型,指定参数传递的类型
+
+```typescript
+// T可以是任意类型
+Array<T>
+// 如果使用Array的时候不指定泛型,则默认使用any.如果不指定,则是unknown
+Array<T=any>;
+// 泛型默认为对象
+Array<T={}>;
+// 此时arr1中的元素类型是unknown,而不是any
+let arr1 = new Array();
+```
+
+* `T extends (params: infer P) => any`: 适用于非继承时,T的类型符合`(params: infer P)=>any`,满足某个条件.P可以出现在参数上,也可以出现在返回值上
+  * 相当于将T的实际类型替换道T的位置,然后判断表达式定义是否满足extends后的表达式定义
+  * 多数适用于参数是泛型,然后还带其他泛型,如`T<K<M>>`获取M的类型
+
+```typescript
+type a = (str: string) => string; // 函数类型
+type b = (str:string,num:number)=>string;
+// 此时,当a的参数表示和返回值类型都被extends后的表达式兼容时,返回P类型,否则返回T
+type c<T> = T extends (params: infer P)=>any ? P:T
+// a类型满足extends后的表达式,所以d为string类型
+// 相当于 (str: string) => string extends (params: infer P)=>any ? P:T,此时T的实际定义格式满足extends后的格式,P为string
+type d = c<a>;
+// b不满足extends后的表达式,所以e为T类型.如果要返回P,则c<T>=T extends (params: infer P,num:number)=>any ? P:T
+type e = c<b>;
+```
+
+
+
+# extends
+
+
+
+* 类的继承
+* 在判断泛型时也可以使用
+
+```typescript
+// 如果T继承U,返回T类型,否则返回never.其实可以直接用Extract<T extends U,U>,这样写的意义何在?
+type type1<T,U> = T extends U ? T : never;
+```
+
+
+
+# Extract,Exclude
+
+
+
+* Extract:判断第一个参数类型是否为第二个参数类型的子类.该方法之后2个参数类型,本质上是一个三元表达式
+* 泛型类型可以使用联合类型,交叉类型,方法
+* Exclude:和Extract刚好相反
+
+```typescript
+// 源码T extends U ? T : never.如果T是U的子类则返回T,否则返回never
+type type1 = Extract<T,U>;
+// 源码:T extends U ? never : T;.如果T是U的子类则返回never,否则返回T
+type type2 = Exclude<T,U>;
+```
+
+
+
 # this
 
 
@@ -343,6 +454,36 @@ type MixedType = string | number;
 type InterType = {id:number,name:string} & {age:number,name:string}
 // 提取接口属性类型
 type NameType = Alias['name'];
+```
+
+* `typeof obj`: 获取对象实例的类型
+* `keyof typeof obj`: 获得对象实例的键的联合类型,相当于获取map中的key的集合,不是key类型的集合,就是key的集合
+* `keyof T`: 得到的是泛型的属性,方法名等
+* `keyof any`: 只能是`string | number | symbol`,是规定
+
+
+
+# in
+
+
+
+* 使用in操作符(类型守卫)来判断,判断属性或方法,函数
+
+```typescript
+if('fly' in Pet){
+    // ok
+    Pet.fly();
+}
+```
+
+* 在泛型中指定类型,此时为迭代的意思
+
+```typescript
+tyep Record<K extends keyof any,T>={
+    // P的类型根据K来改变,K传进来是什么就是什么
+    // 如果K是联合类型,那联合类型中所有的类型都要定义
+	[P in K]: T
+}
 ```
 
 
