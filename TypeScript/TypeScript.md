@@ -109,6 +109,10 @@
 
 * 元组: tuple.编译后仍然是数组,但是可以限制数组的长度和类型
 
+  ```typescript
+  let t:[number,number,number,number,number] = [1,2,3,33,3];
+  ```
+
 * `never`: 永远不会有返回值,never类型的值可以赋值给其他任意类型,但是除了never之外,其他类型的值都不能赋值给never.never是所有类型的子类型
 
 
