@@ -354,7 +354,7 @@ type NameType = Alias['name'];
 ```typescript
 // 在接口中定义类似Map的接口,并约束key和value的类型
 interface LikeMap{
-    // 约束key的类型为string
+    // 约束key的类型为string,可以指向任意参数名,key只是一个代指.如果不想约束value的类型,string可以改成any
     [key: string]: string;
     // age必须是string,此处会报错
     age: number;
@@ -407,6 +407,20 @@ const numAdder = new NumAdder(1,2);
 console.log(numAdder.displayName); // => "Adder"
 console.log(numAdder.add()); // => 3
 console.log(numAdder.add Twice()); //=> 6
+```
+
+
+
+# 类
+
+
+
+* 类中如果有不定参数,可以使用引用类型,也可定义一个Map
+
+```typescript
+class Test{
+	[name:string]: any;
+}
 ```
 
 
